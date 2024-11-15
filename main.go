@@ -26,7 +26,7 @@ func main() {
 	})
 
 	webPort := viperConfig.GetInt("WEB_PORT")
-	err = app.Listen(fmt.Sprintf(":%d", webPort))
+	err = app.Listen(fmt.Sprintf("0.0.0.0:%d", webPort))
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
