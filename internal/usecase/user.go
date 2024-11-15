@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -16,7 +15,6 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -65,7 +63,7 @@ func (c *UserUseCase) Create(ctx context.Context, request *model.RegisterRequest
 		Email:           strings.ToLower(request.Email),
 		Password:        string(password),
 		CreatedAt:       util.NowInWIB(),
-		IsEmailVerified: false,
+		IsEmailVerified: true, //set untuk otp
 	}
 	user.SecretKey, err = util.GenerateSecretKey(user.Email)
 	if err != nil {
@@ -82,10 +80,10 @@ func (c *UserUseCase) Create(ctx context.Context, request *model.RegisterRequest
 		return nil, err
 	}
 
-	err = util.SendOTPRegister(user.Email, OTP, c.Config)
-	if err != nil {
-		return nil, err
-	}
+	// err = util.SendOTPRegister(user.Email, OTP, c.Config)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	user.OTPExpiresAt = util.NowInWIB().Add(15 * time.Minute)
 	if err = c.UserRepository.CreateDefaultUser(ctx, user); err != nil {
@@ -95,8 +93,42 @@ func (c *UserUseCase) Create(ctx context.Context, request *model.RegisterRequest
 		}).Error("Failed create user to database")
 		return nil, err
 	}
+
+	user.Score = 0
+
 	return converter.NewRegisterResponse(user), nil
 }
+
+func (c *UserUseCase) UpdateScore(ctx context.Context, email string, score int) (*model.UpdateScoreResponse, error) {
+	if !util.IsValidEmail(email) {
+		return nil, util.ErrInvalidEmail
+	}
+	user, err := c.UserRepository.FindByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, util.ErrInternalDefault
+	}
+
+	user.Score += score // Increment existing score
+
+	err = c.UserRepository.UpdateScore(ctx, user)
+	if err != nil {
+		c.Log.WithFields(logrus.Fields{
+			"email": email,
+			"score": score,
+			"error": err,
+		}).Error("Failed to update user score")
+		return nil, err
+	}
+
+	return &model.UpdateScoreResponse{
+		Email: user.Email,
+		Score: user.Score,
+	}, nil
+}
+
 func (c *UserUseCase) VerifyOTPRegister(ctx context.Context, request *model.RequestVerifyEmailUsingOtp) (*model.ResponseVerifyEmailUsingOtp, error) {
 	user, err := c.UserRepository.FindByEmail(ctx, request.Email)
 	if err != nil || user == nil {

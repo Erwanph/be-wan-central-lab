@@ -45,7 +45,9 @@ func NewGetUserResponse(user *entity.User) *model.ResponseGetProfiles {
 	return &model.ResponseGetProfiles{
 		Name:      user.Name,
 		Email:     user.Email,
+		Score: 	user.Score,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
 }
+

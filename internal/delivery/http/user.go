@@ -165,3 +165,30 @@ func (c *UserController) UpdateProfiles(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(model.NewWebResponse("Profiles has been updated", nil, updatedUser))
 }
+
+func (c *UserController) UpdateScore(ctx *fiber.Ctx) error {
+	userEmail := ctx.Locals("user").(string)
+	request := new(model.UpdateScoreRequest)
+	if err := ctx.BodyParser(request); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewWebResponse(
+			"Failed to parse request",
+			err,
+			nil,
+		))
+	}
+
+	response, err := c.UseCase.UpdateScore(ctx.Context(), userEmail, request.Score)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(model.NewWebResponse(
+			"Failed to update score",
+			err,
+			nil,
+		))
+	}
+
+	return ctx.JSON(model.NewWebResponse(
+		"Score updated successfully",
+		nil,
+		response,
+	))
+}

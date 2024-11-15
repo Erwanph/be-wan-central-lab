@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Erwanph/be-wan-central-lab/tree/main/internal/config"
+	"github.com/Erwanph/be-wan-central-lab/internal/config"
 )
 
 func main() {

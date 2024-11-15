@@ -9,9 +9,9 @@ import (
 )
 
 type RouteConfig struct {
-	App                  *fiber.App
-	UserController       *http.UserController
-	AuthMiddleware       *middleware.AuthMiddleware
+	App            *fiber.App
+	UserController *http.UserController
+	AuthMiddleware *middleware.AuthMiddleware
 }
 
 func (c *RouteConfig) Setup() {
@@ -45,7 +45,7 @@ func (c *RouteConfig) SetupAuthRoute(api fiber.Router) {
 func (c *RouteConfig) SetupProfileRoute(api fiber.Router) {
 	profiles := api.Group("profile")
 	profiles.Use(c.AuthMiddleware.CheckSession)
-	profiles.Patch("/", c.UserController.UpdateProfiles)
 	profiles.Get("/", c.UserController.GetProfiles)
-
+	profiles.Patch("/", c.UserController.UpdateProfiles)
+	profiles.Patch("/score", c.UserController.UpdateScore)
 }

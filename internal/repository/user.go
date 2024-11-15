@@ -30,9 +30,12 @@ func (r *UserRepository) CreateCustomUser(ctx context.Context, user *entity.User
 	}
 	return nil
 }
+
 func (r *UserRepository) CreateDefaultUser(ctx context.Context, user *entity.User) error {
 	//default user
-	err := primitive.ObjectIDFromHex("")
+	collection := r.DB.Database("digital-voter").Collection("users")
+	user.CreatedAt = time.Now()
+	_, err := collection.InsertOne(ctx, user)
 	if err != nil {
 		return err
 	}
@@ -146,4 +149,19 @@ func (r *UserRepository) UpdateProfiles(ctx context.Context, user *entity.User, 
 	}
 	_, err := collection.UpdateOne(ctx, filter, update)
 	return err
+}
+
+func (r *UserRepository) UpdateScore(ctx context.Context, user *entity.User) error {
+    collection := r.DB.Database("digital-voter").Collection("users")
+    
+    filter := bson.M{"email": user.Email}
+    update := bson.M{
+        "$set": bson.M{
+            "score": user.Score,
+            "updated_at": util.NowInWIB(),
+        },
+    }
+    
+    _, err := collection.UpdateOne(ctx, filter, update)
+    return err
 }

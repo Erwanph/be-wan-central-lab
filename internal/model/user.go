@@ -78,6 +78,16 @@ type RequestGetProfiles struct {
 type ResponseGetProfiles struct {
 	Name      string     `json:"name"`
 	Email     string     `json:"email"`
+	Score     int        `json:"score"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`
+}
+
+type UpdateScoreRequest struct {
+	Score int `json:"score"`
+}
+
+type UpdateScoreResponse struct {
+	Email string `json:"email"`
+	Score int    `json:"score"`
 }

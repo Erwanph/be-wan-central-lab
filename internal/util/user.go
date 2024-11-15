@@ -3,7 +3,6 @@ package util
 import (
 	"crypto/rand"
 	"crypto/tls"
-	"encoding/hex"
 	"fmt"
 	"math/big"
 	"net"
