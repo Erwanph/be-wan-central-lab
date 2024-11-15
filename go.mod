@@ -1,6 +1,6 @@
 module github.com/Erwanph/be-wan-central-lab
 
-go 1.23
+go 1.20
 
 require (
 	github.com/go-playground/validator/v10 v10.22.1
