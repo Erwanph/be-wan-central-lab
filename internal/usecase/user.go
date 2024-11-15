@@ -110,7 +110,9 @@ func (c *UserUseCase) UpdateScore(ctx context.Context, email string, score int) 
 	if user == nil {
 		return nil, util.ErrInternalDefault
 	}
-
+	if user.Score > 0 {
+		return nil, errors.New("assignment already worked")
+	}
 	user.Score += score // Increment existing score
 
 	err = c.UserRepository.UpdateScore(ctx, user)
