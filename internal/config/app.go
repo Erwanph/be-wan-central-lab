@@ -34,9 +34,9 @@ func Bootstrap(config *BootstrapConfig) {
 	authMiddleware := middleware.NewAuthMiddleware(config.Log, userUseCase, config.Config)
 	// config.App.Use(authMiddleware.Handle)
 	routeConfig := route.RouteConfig{
-		App:                  config.App,
-		UserController:       userController,
-		AuthMiddleware:       authMiddleware,
+		App:            config.App,
+		UserController: userController,
+		AuthMiddleware: authMiddleware,
 	}
 	routeConfig.Setup()
 }
