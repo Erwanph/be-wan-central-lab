@@ -1,38 +1,31 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"os"
+	"net/http"
 
 	"github.com/Erwanph/be-wan-central-lab/internal/config"
+	"github.com/gofiber/adaptor/v2"
 )
 
-func main() {
+func Handler(w http.ResponseWriter, r *http.Request) {
 	viperConfig, err := config.NewViper()
 	if err != nil {
-		log.Fatalf("Failed to initialize viper config: %v", err)
+		http.Error(w, "Failed to initialize config", http.StatusInternalServerError)
+		return
 	}
+
 	log := config.NewLogger(viperConfig)
 	mongo_1 := config.NewMongoDatabase(viperConfig, "MONGODB_URI_1")
 	validate := config.NewValidator()
 	app := config.NewFiber(viperConfig)
 
 	config.Bootstrap(&config.BootstrapConfig{
-		MongoDB1: mongo_1, // user
+		MongoDB1: mongo_1,
 		App:      app,
 		Log:      log,
 		Validate: validate,
 		Config:   viperConfig,
 	})
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = fmt.Sprintf("%d", viperConfig.GetInt("WEB_PORT"))
-	}
-
-	err = app.Listen(fmt.Sprintf("0.0.0.0:%s", port))
-	if err != nil {
-		log.Fatalf("Failed to start server: %v", err)
-	}
+	adaptor.FiberApp(app)(w, r)
 }
