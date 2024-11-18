@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "api/main.go": {
-      "runtime": "@vercel/go@1.2.1"
+      "runtime": "@vercel/go@1.23"
     }
   }
 }
